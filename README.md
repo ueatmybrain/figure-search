@@ -1,6 +1,8 @@
 # Figure Search
 Tool to assist you in searching anime figures (and other stuff) on various japanese sites.
 
+This is basically just a vue frontend, so no backend required :D
+
 # Core features:
 
 - Multiple search buttons (Google, Mercari Japan, Suruga-ya, Yahoo Auctions Japan (buyee) and a customizable button)
