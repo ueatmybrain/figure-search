@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+    themes: all;
+    --color-info: #f21d4f;
+}
+
+@theme {
+    --color-deathpink: #f21d4f;
+    --color-info: var(--color-deathpink) !important;
+}
+
+:root{
+    font-family: "PT Serif", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+@utility no-scrollbar {
+    @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+}
+
+.alert-error{
+    @apply bg-red-800
+}.alert{
+    @apply text-primary-content
+}
