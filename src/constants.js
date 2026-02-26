@@ -9,10 +9,6 @@ export const wordDict = [
   { en: 'Junk', jp: ['ジャンク'] },
   { en: 'Book', jp: ['本'] },
 ];
-
-//{ en: '18+', jp: ['18歳'] },
-//   { en: 'Adult', jp: ['アダルト'] },
-//   { en: 'Doujin', jp: ['同人'] },
 export const categoryColors = {
   Prepainted: '#0f830f',
   Action_Dolls: '#0080ff',
@@ -26,13 +22,3 @@ export const categoryColors = {
 };
 
 export const invalidInputs = ['#', '%'];
-const typeDictionary = {
-  j: 'jpg',
-  w: 'webp',
-  p: 'png',
-  g: 'gif',
-};
-
-export function getImageType(imgs, i) {
-  return typeDictionary[imgs.pages[i - 1].t];
-}

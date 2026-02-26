@@ -5,12 +5,9 @@ db.version(1).stores({
   figure: 'key',
   dict: '++id',
 });
-
-// (optional) make editor happy
 db.figure = db.table('figure');
 db.dict = db.table('dict');
 
-// Helpers
 export async function figureSet(key, value) {
   value.capturedAt = Date.now();
   return db.figure.put({ key, value });
@@ -42,8 +39,8 @@ export async function figureEntries() {
 }
 
 export async function idbClear() {
-  return db.figure.clear();
-  return db.dict.clear();
+   db.figure.clear();
+   db.dict.clear();
 }
 export async function setDictEntry(value) {
   return db.dict.add({ value });

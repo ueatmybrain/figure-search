@@ -5,7 +5,6 @@
   import { EyeIcon } from '@heroicons/vue/24/solid';
   import { EyeSlashIcon } from '@heroicons/vue/24/solid';
   import { PencilSquareIcon } from '@heroicons/vue/24/solid';
-  import PrettyS from './PrettySm.vue';
   import StoreButton from './StoreButton.vue';
   import { invalidInputs, wordDict } from '../constants.js';
   import FigureDataWindow from './FigureDataWindow.vue';
@@ -13,6 +12,7 @@
   import { useFigureSearchStore } from '../stores/figuresearch.js';
   import { deleteDictEntry, dictionaryEntries, idbClear, setDictEntry } from '../db/idb.js';
   import { useAlertsStore } from '../stores/alerts.js';
+  import PrettySm from './PrettySm.vue';
 
   const fsearch = useFigureSearchStore();
   const customSearchLink = ref('https://www.ebay.de/sch/i.html?_nkw=');
@@ -68,7 +68,7 @@
 <template>
   <div class="w-150">
     <FigureDataWindow></FigureDataWindow>
-    <PrettyS
+    <PrettySm
       ><div class="w-135 m-4">
         <p class="text-sm font-bold mb-4 text-base-content">Advanced Search</p>
         <div>
@@ -206,7 +206,7 @@
             </fieldset>
           </div>
         </div></div
-    ></PrettyS>
+    ></PrettySm>
     <dialog id="are_you_sure" class="modal">
       <div class="modal-box">
         <h3 class="text-lg font-bold">Are you sure?</h3>

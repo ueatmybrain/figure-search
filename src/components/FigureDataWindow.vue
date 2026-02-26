@@ -2,7 +2,7 @@
   import { onMounted, ref } from 'vue';
   import FlagIcon from './FlagIcon.vue';
   import { figureDelete, figureGet, figureSet } from '../db/idb.js';
-  import PrettyS from './PrettySm.vue';
+  import PrettySm from './PrettySm.vue';
   import { copyToCb, getCategoryColor, getJpValue, transformValue, withoutKeys } from '../utils.js';
   import { useFigureSearchStore } from '../stores/figuresearch.js';
   import { PlusCircleIcon } from '@heroicons/vue/24/outline';
