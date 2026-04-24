@@ -1,3 +1,6 @@
+# Newer version including GUI for figure searching:
+https://github.com/ueatmybrain/figure-search-extension
+
 # Figure Search
 Tool to assist you in searching anime figures (and other stuff) on various japanese sites.
 
