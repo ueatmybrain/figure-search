@@ -40,7 +40,6 @@ export const useFigureSearchStore = defineStore('fsearch', {
     },
     async updateNsfwSetting() {
       this.nsfwHidden = await settingsGet('nsfw');
-      console.log(await settingsGet('nsfw'))
     },
     async toggleNsfw() {
       await this.updateNsfwSetting();

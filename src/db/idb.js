@@ -15,7 +15,9 @@ export async function settingsAlter(key, value) {
 }
 export async function settingsGet(key) {
   const row = await db.settings.get(key);
-  return row.value;
+  if (row === undefined) { return await settingsAlter(key, false); }
+  if (row.value !== undefined) {return row.value;}
+  else {return false;}
 }
 
 export async function figureSet(key, value) {

@@ -68,7 +68,6 @@
     for (const tag of entry.value.tags) {
       for (const adultTag of ['18+', 'nsfw', 'nsfw+']) {
         if (tag.title === adultTag) {
-          console.log(tag.title);
           return true;
         }
       }
