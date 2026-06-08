@@ -381,7 +381,12 @@
       <div class="collapse-content text-sm">
         <button onclick="are_you_sure.showModal()" class="btn text-error">Clear IndexedDB</button>
         <button class="btn" @click="fsearch.toggleNsfw()">toggle NSFW visibility</button>
-        <span v-if="fsearch.nsfwHidden">hidden</span>   <span v-if="!fsearch.nsfwHidden">shown</span>
+        <span class="text-red-400" v-if="fsearch.nsfwHidden"
+          ><EyeSlashIcon class="size-5 inline" /> NSFW hidden</span
+        >
+        <span class="text-pink-500"  v-if="!fsearch.nsfwHidden"
+          ><EyeIcon class="size-5 inline" /> NSFW shown</span
+        >
       </div>
     </div>
   </div>

@@ -148,28 +148,30 @@
       <div v-for="entry in fsearch.entries" :key="entry.id">
         <div
           v-if="fsearch.nsfwHidden && hasAdultTag(entry)"
-          class="rounded-full w-16 h-16 object-cover ring-2 ring-offset-2 border-deathpink"
+          class="rounded-full w-16 h-16 object-cover ring-2 ring-offset-2 border-pink-500"
         >
           <div class="pt-5 text-center">N/A</div>
         </div>
         <div class="flex-shrink-0" v-if="!(fsearch.nsfwHidden && hasAdultTag(entry))">
-          <div
-            v-if="hasAdultTag(entry)"
-            class="pointer-events-none select-none absolute text-deathpink outline-solid rounded-md shadow-white bg-white z-20"
-          >
-            +18
+          <div class="relative size-16">
+            <div
+              v-if="hasAdultTag(entry)"
+              class="pointer-events-none select-none absolute text-pink-500 outline-solid rounded-full shadow-white bg-white z-20"
+            >
+              +18
+            </div>
+            <img
+              :src="entry.value.icon"
+              class="rounded-full cursor-pointer w-16 h-16 object-cover ring-2 ring-offset-2 border-deathpink hover:opacity-90"
+              :class="entry.value.id === fsearch.currentEntry.value.id ? 'ring-4' : ''"
+              :style="{ '--tw-ring-color': getCategoryColor(entry.value.category) }"
+              @click.left="switchCurrentEntry(entry.value.id)"
+              @click.right="showFigureContextMenu($event, entry)"
+              @mousemove="updateMouse"
+              @mouseenter="showFigureTooltip(entry)"
+              @mouseleave="hideFigureTooltip()"
+            />
           </div>
-          <img
-            :src="entry.value.icon"
-            class="rounded-full cursor-pointer w-16 h-16 object-cover ring-2 ring-offset-2 border-deathpink hover:opacity-90"
-            :class="entry.value.id === fsearch.currentEntry.value.id ? 'ring-4' : ''"
-            :style="{ '--tw-ring-color': getCategoryColor(entry.value.category) }"
-            @click.left="switchCurrentEntry(entry.value.id)"
-            @click.right="showFigureContextMenu($event, entry)"
-            @mousemove="updateMouse"
-            @mouseenter="showFigureTooltip(entry)"
-            @mouseleave="hideFigureTooltip()"
-          />
         </div>
       </div>
     </div>
