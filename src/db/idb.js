@@ -4,9 +4,19 @@ export const db = new Dexie('FigureSearch');
 db.version(1).stores({
   figure: 'key',
   dict: '++id',
+  settings: 'key',
 });
 db.figure = db.table('figure');
 db.dict = db.table('dict');
+db.settings = db.table('settings');
+
+export async function settingsAlter(key, value) {
+  return db.settings.put({ key, value });
+}
+export async function settingsGet(key) {
+  const row = await db.settings.get(key);
+  return row.value;
+}
 
 export async function figureSet(key, value) {
   value.capturedAt = Date.now();

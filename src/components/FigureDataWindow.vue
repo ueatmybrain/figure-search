@@ -6,8 +6,9 @@
   import { copyToCb, getCategoryColor, getJpValue, transformValue, withoutKeys } from '../utils.js';
   import { useFigureSearchStore } from '../stores/figuresearch.js';
   import { PlusCircleIcon } from '@heroicons/vue/24/outline';
-  import { EyeIcon, EyeSlashIcon, PhotoIcon } from '@heroicons/vue/24/solid';
+  import { EyeIcon, EyeSlashIcon, PhotoIcon, TagIcon } from '@heroicons/vue/24/solid';
   import { useAlertsStore } from '../stores/alerts.js';
+  import GalleryWindow from './GalleryWindow.vue';
 
   const fsearch = useFigureSearchStore();
   const alerts = useAlertsStore();
@@ -16,6 +17,7 @@
   const mouse = ref({ x: 0, y: 0 });
   const contextMenuPos = ref({ x: 0, y: 0 });
   const ctxMenu = ref(null);
+  const tagsVisible = ref(false);
 
   function updateMouse(e) {
     mouse.value.x = e.clientX;
@@ -24,6 +26,7 @@
 
   onMounted(async () => {
     await fsearch.updateEntries();
+    await fsearch.updateNsfwSetting();
     document.addEventListener('mousedown', handleClickOutside);
   });
 
@@ -59,6 +62,20 @@
   function hideFigureTooltip() {
     figureTooltip.value = null;
   }
+
+  function hasAdultTag(entry) {
+    if (!entry.value.tags) return false;
+    for (const tag of entry.value.tags) {
+      for (const adultTag of ['18+', 'nsfw', 'nsfw+']) {
+        if (tag.title === adultTag) {
+          console.log(tag.title);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   const contextMenuSelection = ref(null);
   function showFigureContextMenu(event, entry) {
     event.preventDefault();
@@ -110,8 +127,6 @@
       throw e;
     }
   }
-
-  const galleryVisible = ref(true);
 </script>
 
 <template>
@@ -130,18 +145,32 @@
       class="flex gap-3 overflow-x-auto whitespace-nowrap p-4 rounded-lg no-scrollbar"
       @wheel.prevent="onWheelScroll"
     >
-      <div v-for="entry in fsearch.entries" :key="entry.id" class="flex-shrink-0">
-        <img
-          :src="entry.value.icon"
-          class="rounded-full cursor-pointer w-16 h-16 object-cover ring-2 ring-offset-2 border-deathpink hover:opacity-90"
-          :class="entry.value.id === fsearch.currentEntry.value.id ? 'ring-4' : ''"
-          :style="{ '--tw-ring-color': getCategoryColor(entry.value.category) }"
-          @click.left="switchCurrentEntry(entry.value.id)"
-          @click.right="showFigureContextMenu($event, entry)"
-          @mousemove="updateMouse"
-          @mouseenter="showFigureTooltip(entry)"
-          @mouseleave="hideFigureTooltip()"
-        />
+      <div v-for="entry in fsearch.entries" :key="entry.id">
+        <div
+          v-if="fsearch.nsfwHidden && hasAdultTag(entry)"
+          class="rounded-full w-16 h-16 object-cover ring-2 ring-offset-2 border-deathpink"
+        >
+          <div class="pt-5 text-center">N/A</div>
+        </div>
+        <div class="flex-shrink-0" v-if="!(fsearch.nsfwHidden && hasAdultTag(entry))">
+          <div
+            v-if="hasAdultTag(entry)"
+            class="pointer-events-none select-none absolute text-deathpink outline-solid rounded-md shadow-white bg-white z-20"
+          >
+            +18
+          </div>
+          <img
+            :src="entry.value.icon"
+            class="rounded-full cursor-pointer w-16 h-16 object-cover ring-2 ring-offset-2 border-deathpink hover:opacity-90"
+            :class="entry.value.id === fsearch.currentEntry.value.id ? 'ring-4' : ''"
+            :style="{ '--tw-ring-color': getCategoryColor(entry.value.category) }"
+            @click.left="switchCurrentEntry(entry.value.id)"
+            @click.right="showFigureContextMenu($event, entry)"
+            @mousemove="updateMouse"
+            @mouseenter="showFigureTooltip(entry)"
+            @mouseleave="hideFigureTooltip()"
+          />
+        </div>
       </div>
     </div>
     <div>
@@ -222,44 +251,7 @@
         </div></PrettySm
       >
     </div>
-    <div @click="galleryVisible = !galleryVisible" class="m-1 flex cursor-pointer justify-end">
-      <PhotoIcon class="size-5"></PhotoIcon>
-      <EyeIcon class="size-5" v-if="galleryVisible" />
-      <EyeSlashIcon class="size-5" v-if="!galleryVisible" />
-    </div>
-    <label class="modal-backdrop select-none" for="gallery_modal" v-show="galleryVisible">
-      <figure
-        class="cursor-zoom-in max-w-80 mx-auto"
-        :class="(fsearch.currentEntry.value?.images?.length ?? 0) > 1 ? 'hover-gallery' : ''"
-      >
-        <img
-          :src="src.replaceAll('/thumbnails/', '/').replaceAll('/1/', '/2/')"
-          class="object-scale-down h-60"
-          v-for="src in fsearch.currentEntry.value?.images"
-        /></figure
-    ></label>
-
-    <input type="checkbox" id="gallery_modal" class="modal-toggle cursor-zoom-out" />
-    <div class="modal" role="dialog">
-      <div class="modal-box bg-transparent double-scale">
-        <figure
-          class=""
-          :class="
-            (fsearch.currentEntry.value?.images?.length ?? 0) > 1
-              ? 'hover-gallery cursor-w-resize'
-              : 'cursor-move'
-          "
-        >
-          <img
-            :src="src.replaceAll('/thumbnails/', '/').replaceAll('/1/', '/2/')"
-            class="w-200"
-            v-for="src in fsearch.currentEntry?.value?.images"
-          />
-        </figure>
-      </div>
-      <label class="modal-backdrop cursor-zoom-out" for="gallery_modal">Close</label>
-    </div>
-
+    <GalleryWindow v-if="!(hasAdultTag(fsearch.currentEntry) && fsearch.nsfwHidden)" />
     <a
       :href="'https://myfigurecollection.net/item/' + fsearch.currentEntry?.value?.id"
       target="_blank"
@@ -286,7 +278,10 @@
                 'images',
                 'various',
                 'releases',
+                'meta_searchterm',
+                'meta_link_price',
                 'jp',
+                'tags',
                 'capturedAt',
               ])"
               :key="key"
@@ -330,6 +325,25 @@
             </tr>
           </tbody>
         </table>
+      </div>
+      <div
+        v-if="fsearch.currentEntry.value.tags"
+        @click="tagsVisible = !tagsVisible"
+        class="mb-4 flex cursor-pointer hover:opacity-80"
+      >
+        <TagIcon class="size-5"></TagIcon>
+        <EyeIcon class="size-5" v-if="tagsVisible" />
+        <EyeSlashIcon class="size-5" v-if="!tagsVisible" />
+        <span class="text-sm select-none ml-2">show/hide tags</span>
+      </div>
+      <div v-if="fsearch.currentEntry.value.tags && tagsVisible" class="m-4 flex gap-2 flex-wrap">
+        <a
+          class="badge"
+          :href="'https://myfigurecollection.net' + tag.link"
+          target="_blank  "
+          v-for="tag in fsearch.currentEntry.value.tags"
+          >{{ tag.title }}</a
+        >
       </div>
     </div>
   </div>

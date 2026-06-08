@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { figureEntries } from '../db/idb.js';
+import { settingsAlter, settingsGet } from '../db/idb.js';
 import { removeInvalid } from '../utils.js';
 
 export const useFigureSearchStore = defineStore('fsearch', {
@@ -10,6 +11,7 @@ export const useFigureSearchStore = defineStore('fsearch', {
     currentEntry: {},
     inputHistory: [],
     autoRemoveInvalid: true,
+    nsfwHidden: true,
   }),
   getters: {},
   actions: {
@@ -35,6 +37,15 @@ export const useFigureSearchStore = defineStore('fsearch', {
         return;
       }
       this.searchInput = '';
+    },
+    async updateNsfwSetting() {
+      this.nsfwHidden = await settingsGet('nsfw');
+      console.log(await settingsGet('nsfw'))
+    },
+    async toggleNsfw() {
+      await this.updateNsfwSetting();
+        await settingsAlter('nsfw', !this.nsfwHidden);
+      await this.updateNsfwSetting();
     },
   },
 });

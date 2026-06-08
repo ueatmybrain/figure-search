@@ -1,18 +1,25 @@
 <script setup>
-  import { onMounted, ref, useTemplateRef, watch } from 'vue';
+  import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
   import FlagIcon from './FlagIcon.vue';
   import { MagnifyingGlassIcon } from '@heroicons/vue/24/solid';
   import { EyeIcon } from '@heroicons/vue/24/solid';
-  import { EyeSlashIcon } from '@heroicons/vue/24/solid';
-  import { PencilSquareIcon } from '@heroicons/vue/24/solid';
+  import { EyeSlashIcon, PencilSquareIcon, TrashIcon } from '@heroicons/vue/24/solid';
   import StoreButton from './StoreButton.vue';
   import { invalidInputs, wordDict } from '../constants.js';
   import FigureDataWindow from './FigureDataWindow.vue';
   import { copyToCb, hasInvalid } from '../utils.js';
   import { useFigureSearchStore } from '../stores/figuresearch.js';
-  import { deleteDictEntry, dictionaryEntries, idbClear, setDictEntry } from '../db/idb.js';
+  import {
+    deleteDictEntry,
+    dictionaryEntries,
+    figureGet,
+    figureSet,
+    idbClear,
+    setDictEntry,
+  } from '../db/idb.js';
   import { useAlertsStore } from '../stores/alerts.js';
   import PrettySm from './PrettySm.vue';
+  import CostCalculator from './CostCalculator.vue';
 
   const fsearch = useFigureSearchStore();
   const customSearchLink = ref('https://www.ebay.de/sch/i.html?_nkw=');
@@ -21,6 +28,7 @@
   const englishCustomDict = ref('');
   const customDictionary = ref([]);
   const editCustomVisible = ref(false);
+
   function clearInputs() {
     englishCustomDict.value = '';
     jpCustomDict.value = [];
@@ -47,6 +55,7 @@
     customDictionary.value = await dictionaryEntries();
     console.log(customDictionary.value);
     searchInputElem = useTemplateRef('search-input');
+    await loadSearchterm();
   });
 
   function hasContent(arr) {
@@ -63,6 +72,19 @@
       message: 'Indexed DB was cleared successfully! Please refresh this page.',
     });
   }
+
+  async function saveSearchterm() {
+    const currentFigure = await figureGet(fsearch.currentEntry.key);
+    currentFigure.value.meta_searchterm = fsearch.searchInput;
+    await figureSet(fsearch.currentEntry.key, currentFigure.value);
+    await fsearch.updateEntries();
+  }
+  async function loadSearchterm() {
+    const currentFigure = await figureGet(fsearch.currentEntry.key);
+    if (currentFigure.value.meta_searchterm) {
+      fsearch.searchInput = currentFigure.value.meta_searchterm;
+    }
+  }
 </script>
 
 <template>
@@ -73,7 +95,7 @@
         <p class="text-sm font-bold mb-4 text-base-content">Advanced Search</p>
         <div>
           <div class="mb-4">
-            <label class="input w-120">
+            <label class="input w-135">
               <MagnifyingGlassIcon class="size-5" />
               <input
                 type="search"
@@ -83,20 +105,6 @@
                 v-model="fsearch.searchInput"
               />
             </label>
-            <button class="btn hover:text-error" @click="fsearch.clearSearchInput()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="size-6"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
             <div class="justify-center inline-flex gap-4">
               <label class="label font-bold text-xs text-primary-content">
                 <input
@@ -118,6 +126,13 @@
               >
                 Remove invalid characters
               </button>
+              <div class="flex gap-1">
+                <button class="btn btn-sm" @click="saveSearchterm()">Save</button>
+                <button class="btn btn-sm" @click="loadSearchterm()">Load</button>
+                <button class="btn btn-sm hover:text-error" @click="fsearch.clearSearchInput()">
+                  <TrashIcon class="size-3 px-.7" />
+                </button>
+              </div>
             </div>
           </div>
           <div class="gap-2 flex justify-center">
@@ -128,7 +143,7 @@
               ><StoreButton
                 :data="{
                   image:
-                    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/1200px-Google_2015_logo.svg.png',
+                    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/1280px-Google_2015_logo.svg.png',
                   label: 'Google',
                 }"
               />
@@ -345,6 +360,7 @@
         </table>
       </div>
     </div>
+    <div class="collapse collapse-arrow mt-4"><CostCalculator /></div>
     <div class="collapse collapse-arrow mt-4">
       <input type="checkbox" />
       <div class="collapse-title text-xs">
@@ -364,6 +380,8 @@
       </div>
       <div class="collapse-content text-sm">
         <button onclick="are_you_sure.showModal()" class="btn text-error">Clear IndexedDB</button>
+        <button class="btn" @click="fsearch.toggleNsfw()">toggle NSFW visibility</button>
+        <span v-if="fsearch.nsfwHidden">hidden</span>   <span v-if="!fsearch.nsfwHidden">shown</span>
       </div>
     </div>
   </div>

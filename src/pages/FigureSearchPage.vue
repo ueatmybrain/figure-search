@@ -5,6 +5,7 @@
 
 <template>
   <div>
+
     <PrettyMd class="max-w-180 mx-auto mb-8"><FigureSearch></FigureSearch></PrettyMd>
   </div>
 </template>

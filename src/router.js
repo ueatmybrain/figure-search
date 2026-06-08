@@ -4,12 +4,8 @@ import NotFound from './components/NotFound.vue';
 
 const routes = [
   {
-    path: '/',
-    component: FigureSearchPage,
-  },
-  {
     path: '/:pathMatch(.*)*',
-    component: NotFound,
+    component: FigureSearchPage,
   },
 ];
 const router = createRouter({
