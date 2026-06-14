@@ -22,3 +22,16 @@ export const categoryColors = {
 };
 
 export const invalidInputs = ['#', '%'];
+export const tableExclusionList = [
+  'id',
+  'icon',
+  'images',
+  'various',
+  'releases',
+  'meta_searchterm',
+  'meta_link_price',
+  'jp',
+  'tags',
+  'capturedAt',
+  'notes'
+];

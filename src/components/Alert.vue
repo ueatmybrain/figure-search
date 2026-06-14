@@ -4,6 +4,7 @@
   import { XCircleIcon } from '@heroicons/vue/24/outline';
   import { CheckCircleIcon } from '@heroicons/vue/24/outline';
   import { useAlertsStore } from '../stores/alerts.js';
+  import PrettySm from './PrettySm.vue';
 
   const alerts = useAlertsStore();
 
@@ -16,7 +17,7 @@
     error: {
       type: 'alert-error',
       icon: XCircleIcon,
-      iconColor: 'text-red-200',
+      iconColor: 'text-red-500',
     },
     success: {
       type: 'alert-success',
@@ -41,16 +42,21 @@
     :class="{ 'fade-top-to-bottom': alerts.queue.length >= 6 }"
   >
     <transition-group name="fade" tag="div" class="space-y-2">
-      <div
+      <PrettySm
         :key="alert"
         v-for="alert in alerts.queue"
         role="alert"
-        class="alert"
-        :class="[getTypeConfig(alert.type).type]"
+        class="alert bg-base-200 mx-auto mt-4"
       >
-        <component :is="getTypeConfig(alert.type).icon" class="size-7 shrink-0" />
-        <span class="w-90 text-xl">{{ alert.message }}</span>
-      </div>
+        <div class="p-4 flex flex-row gap-4">
+          <component
+            :is="getTypeConfig(alert.type).icon"
+            class="size-7 shrink-0"
+            :class="getTypeConfig(alert.type).iconColor"
+          />
+          <span class="w-78 text">{{ alert.message }}</span>
+        </div>
+      </PrettySm>
     </transition-group>
   </div>
 </template>

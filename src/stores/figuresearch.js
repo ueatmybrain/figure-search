@@ -13,7 +13,18 @@ export const useFigureSearchStore = defineStore('fsearch', {
     autoRemoveInvalid: true,
     nsfwHidden: true,
   }),
-  getters: {},
+  getters: {
+    filteredEntries() {
+      if (!this.nsfwHidden){return this.entries;}
+      let filtered = []
+      for (const entry of this.entries) {
+        if (!this.hasAdultTag(entry)){
+          filtered.push(entry)
+        }
+      }
+      return filtered
+    }
+  },
   actions: {
     pasteToSearch(event) {
       this.searchInput = [this.searchInput, event.currentTarget.innerText].join(' ');
@@ -22,10 +33,28 @@ export const useFigureSearchStore = defineStore('fsearch', {
     async updateEntries() {
       figureEntries().then((entries) => {
         this.entries = entries.sort((a, b) => b.value.capturedAt - a.value.capturedAt);
-        console.log(this.entries);
-        this.currentEntry = this.entries[0];
+        if (this.nsfwHidden) {
+        for (const entry of this.entries) {
+          if (!this.hasAdultTag(entry)) {
+            this.currentEntry = entry;
+            break;
+          }
+        }
+        }else{this.currentEntry = this.entries[0];}
+
       });
     },
+    hasAdultTag(entry) {
+  if (!entry.value.tags) return false;
+  for (const tag of entry.value.tags) {
+    for (const adultTag of ['18+', 'nsfw', 'nsfw+']) {
+      if (tag.title === adultTag) {
+        return true;
+      }
+    }
+  }
+  return false;
+  },
     removeInvalidSearchCharacters() {
       if (this.searchInput === '') {
         return;

@@ -1,5 +1,5 @@
 <script setup>
-  import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+  import { computed, onMounted, ref, toRaw, useTemplateRef, watch } from 'vue';
   import FlagIcon from './FlagIcon.vue';
   import { MagnifyingGlassIcon } from '@heroicons/vue/24/solid';
   import { EyeIcon } from '@heroicons/vue/24/solid';
@@ -7,7 +7,7 @@
   import StoreButton from './StoreButton.vue';
   import { invalidInputs, wordDict } from '../constants.js';
   import FigureDataWindow from './FigureDataWindow.vue';
-  import { copyToCb, hasInvalid } from '../utils.js';
+  import { hasInvalid } from '../utils.js';
   import { useFigureSearchStore } from '../stores/figuresearch.js';
   import {
     deleteDictEntry,
@@ -19,72 +19,52 @@
   } from '../db/idb.js';
   import { useAlertsStore } from '../stores/alerts.js';
   import PrettySm from './PrettySm.vue';
-  import CostCalculator from './CostCalculator.vue';
-
   const fsearch = useFigureSearchStore();
   const customSearchLink = ref('https://www.ebay.de/sch/i.html?_nkw=');
   const customSearchLabel = ref('ebay');
-  const jpCustomDict = ref([]);
-  const englishCustomDict = ref('');
-  const customDictionary = ref([]);
   const editCustomVisible = ref(false);
 
-  function clearInputs() {
-    englishCustomDict.value = '';
-    jpCustomDict.value = [];
-  }
-  async function addToDict() {
-    if (!englishCustomDict.value) {
-      return;
+  function initSearch() {
+    if (fsearch.currentEntry?.value && fsearch.currentEntry?.value?.meta_searchterm) {
+      fsearch.searchInput = fsearch.currentEntry.value.meta_searchterm;
+    } else {
+      fsearch.searchInput = '';
     }
-    const cleaned = jpCustomDict.value.filter((v) => v != null && v !== '');
-    if (cleaned.length <= 0) {
-      cleaned.push('---');
-    }
-    const payload = { en: englishCustomDict.value, jp: cleaned };
-    await setDictEntry(payload);
-    clearInputs();
-    customDictionary.value = await dictionaryEntries();
-  }
-  async function deleteFromDict(id) {
-    await deleteDictEntry(id);
-    customDictionary.value = await dictionaryEntries();
   }
   let searchInputElem = ref();
   onMounted(async () => {
-    customDictionary.value = await dictionaryEntries();
-    console.log(customDictionary.value);
     searchInputElem = useTemplateRef('search-input');
-    await loadSearchterm();
+    initSearch();
   });
-
-  function hasContent(arr) {
-    for (const item of arr) {
-      if (item) {
-        return true;
-      }
-    }
-    return false;
-  }
   function clearIndexedDb() {
     idbClear();
     useAlertsStore().push({
       message: 'Indexed DB was cleared successfully! Please refresh this page.',
     });
   }
-
-  async function saveSearchterm() {
-    const currentFigure = await figureGet(fsearch.currentEntry.key);
-    currentFigure.value.meta_searchterm = fsearch.searchInput;
-    await figureSet(fsearch.currentEntry.key, currentFigure.value);
-    await fsearch.updateEntries();
-  }
-  async function loadSearchterm() {
-    const currentFigure = await figureGet(fsearch.currentEntry.key);
-    if (currentFigure.value.meta_searchterm) {
-      fsearch.searchInput = currentFigure.value.meta_searchterm;
+  watch(
+    () => fsearch.currentEntry,
+    () => {
+      initSearch();
     }
-  }
+  );
+  let saveTimer;
+  watch(
+    () => fsearch.searchInput,
+    (newValue) => {
+      if (!fsearch.currentEntry.value) {
+        return;
+      }
+      clearTimeout(saveTimer);
+
+      saveTimer = setTimeout(async () => {
+        await figureSet(fsearch.currentEntry.value.id, {
+          ...toRaw(fsearch.currentEntry.value),
+          meta_searchterm: newValue,
+        });
+      }, 50);
+    }
+  );
 </script>
 
 <template>
@@ -127,8 +107,6 @@
                 Remove invalid characters
               </button>
               <div class="flex gap-1">
-                <button class="btn btn-sm" @click="saveSearchterm()">Save</button>
-                <button class="btn btn-sm" @click="loadSearchterm()">Load</button>
                 <button class="btn btn-sm hover:text-error" @click="fsearch.clearSearchInput()">
                   <TrashIcon class="size-3 px-.7" />
                 </button>
@@ -234,161 +212,6 @@
         </div>
       </div>
     </dialog>
-    <div class="collapse collapse-arrow mt-4">
-      <input type="checkbox" />
-      <div class="collapse-title text-xs">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          class="size-5 inline"
-        >
-          <path
-            d="M11.25 4.533A9.707 9.707 0 0 0 6 3a9.735 9.735 0 0 0-3.25.555.75.75 0 0 0-.5.707v14.25a.75.75 0 0 0 1 .707A8.237 8.237 0 0 1 6 18.75c1.995 0 3.823.707 5.25 1.886V4.533ZM12.75 20.636A8.214 8.214 0 0 1 18 18.75c.966 0 1.89.166 2.75.47a.75.75 0 0 0 1-.708V4.262a.75.75 0 0 0-.5-.707A9.735 9.735 0 0 0 18 3a9.707 9.707 0 0 0-5.25 1.533v16.103Z"
-          />
-        </svg>
-        FigureSearch dictionary
-      </div>
-      <div class="collapse-content text-sm">
-        <table class="table table-xs">
-          <thead>
-            <tr>
-              <th><FlagIcon lang="en" /></th>
-              <th><FlagIcon lang="jp" /></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="word in wordDict">
-              <td>
-                <div
-                  class="badge hover:badge-outline cursor-pointer"
-                  @click.left="fsearch.pasteToSearch"
-                  @click.right="copyToCb"
-                >
-                  {{ word.en }}
-                </div>
-              </td>
-              <td>
-                <div
-                  v-for="entry in word.jp"
-                  class="badge hover:badge-outline cursor-pointer"
-                  @click.left="fsearch.pasteToSearch"
-                  @click.right="copyToCb"
-                >
-                  {{ entry }}
-                </div>
-              </td>
-            </tr>
-
-            <tr v-for="word in customDictionary">
-              <td>
-                <div
-                  class="badge hover:badge-outline cursor-pointer"
-                  @click.left="fsearch.pasteToSearch"
-                  @click.right="copyToCb"
-                >
-                  {{ word.value.en }}
-                </div>
-              </td>
-              <td>
-                <div
-                  v-for="entry in word.value.jp"
-                  class="badge hover:badge-outline cursor-pointer"
-                  @click.left="fsearch.pasteToSearch"
-                  @click.right="copyToCb"
-                >
-                  {{ entry }}
-                </div>
-              </td>
-              <td>
-                <button class="btn btn-sm hover:text-error" @click="deleteFromDict(word.id)">
-                  Delete
-                </button>
-              </td>
-            </tr>
-
-            <tr>
-              <td class="p-2">Add custom entry:</td>
-            </tr>
-            <tr id="addDictEntryForm">
-              <td>
-                <input
-                  type="text"
-                  placeholder="English"
-                  class="input-xs w-15"
-                  v-model="englishCustomDict"
-                />
-              </td>
-              <td class="max-w-30">
-                <div v-for="i in jpCustomDict.length + 1" class="m-2 inline">
-                  <input
-                    type="text"
-                    placeholder="日本語"
-                    class="input-xs w-10"
-                    v-model="jpCustomDict[i - 1]"
-                  />
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td :class="!englishCustomDict && hasContent(jpCustomDict) ? 'text-error' : ''">
-                You need to enter at least an English keyword to submit.
-              </td>
-              <td>
-                <div class="inline">
-                  <button
-                    class="btn btn-sm mr-2"
-                    :class="jpCustomDict.length >= 1 ? '' : ''"
-                    :disabled="!jpCustomDict.length >= 1 && !(englishCustomDict !== '')"
-                    @click="clearInputs()"
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    class="btn btn-sm"
-                    :class="englishCustomDict ? 'bg-deathpink' : 'opacity-70'"
-                    :disabled="!englishCustomDict"
-                    @click="addToDict()"
-                  >
-                    Add
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="collapse collapse-arrow mt-4"><CostCalculator /></div>
-    <div class="collapse collapse-arrow mt-4">
-      <input type="checkbox" />
-      <div class="collapse-title text-xs">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          class="size-5 inline"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L9.05 4.889c-.02.12-.115.26-.297.348a7.493 7.493 0 0 0-.986.57c-.166.115-.334.126-.45.083L6.3 5.508a1.875 1.875 0 0 0-2.282.819l-.922 1.597a1.875 1.875 0 0 0 .432 2.385l.84.692c.095.078.17.229.154.43a7.598 7.598 0 0 0 0 1.139c.015.2-.059.352-.153.43l-.841.692a1.875 1.875 0 0 0-.432 2.385l.922 1.597a1.875 1.875 0 0 0 2.282.818l1.019-.382c.115-.043.283-.031.45.082.312.214.641.405.985.57.182.088.277.228.297.35l.178 1.071c.151.904.933 1.567 1.85 1.567h1.844c.916 0 1.699-.663 1.85-1.567l.178-1.072c.02-.12.114-.26.297-.349.344-.165.673-.356.985-.57.167-.114.335-.125.45-.082l1.02.382a1.875 1.875 0 0 0 2.28-.819l.923-1.597a1.875 1.875 0 0 0-.432-2.385l-.84-.692c-.095-.078-.17-.229-.154-.43a7.614 7.614 0 0 0 0-1.139c-.016-.2.059-.352.153-.43l.84-.692c.708-.582.891-1.59.433-2.385l-.922-1.597a1.875 1.875 0 0 0-2.282-.818l-1.02.382c-.114.043-.282.031-.449-.083a7.49 7.49 0 0 0-.985-.57c-.183-.087-.277-.227-.297-.348l-.179-1.072a1.875 1.875 0 0 0-1.85-1.567h-1.843ZM12 15.75a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        Settings
-      </div>
-      <div class="collapse-content text-sm">
-        <button onclick="are_you_sure.showModal()" class="btn text-error">Clear IndexedDB</button>
-        <button class="btn" @click="fsearch.toggleNsfw()">toggle NSFW visibility</button>
-        <span class="text-red-400" v-if="fsearch.nsfwHidden"
-          ><EyeSlashIcon class="size-5 inline" /> NSFW hidden</span
-        >
-        <span class="text-pink-500"  v-if="!fsearch.nsfwHidden"
-          ><EyeIcon class="size-5 inline" /> NSFW shown</span
-        >
-      </div>
-    </div>
   </div>
 </template>
 

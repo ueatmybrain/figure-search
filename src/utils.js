@@ -25,6 +25,9 @@ export function getCategoryColor(category) {
   return categoryColors[category.replaceAll('/', '_').replaceAll(' ', '_')];
 }
 export function isIterable(value) {
+  if (value instanceof String) {
+    return false;
+  }
   return value != null && typeof value.forEach === 'function';
 }
 
@@ -38,7 +41,7 @@ export function transformValue(value) {
       vals.push(value);
     }
   }
-  return vals.join();
+  return vals.join('_$split$_');
 }
 
 export async function copyToCb(event) {
@@ -57,4 +60,40 @@ export function withoutKeys(obj, keys) {
 export function getJpValue(obj, key) {
   if (!obj.jp[key]) return '---';
   return transformValue(obj.jp[key]);
+}
+
+export function stringifyCharacters(obj) {
+  if (!isIterable(obj)) {
+    return obj;
+  }
+  if (!obj) {
+    return null;
+  }
+  let vals = [];
+  for (const val of obj) {
+    for (const [key, value] of Object.entries(val)) {
+      vals.push(value);
+    }
+  }
+  return vals.join(', ');
+}
+
+export function getDisplayName(obj) {
+  return (
+    obj?.character ||
+    stringifyCharacters(obj?.characters) ||
+    obj?.title ||
+    obj?.classification ||
+    'unknown_character'
+  );
+}
+
+export function getJpDisplayName(obj) {
+  return (
+    obj?.jp.character ||
+    stringifyCharacters(obj?.jp.characters) ||
+    obj?.jp.title ||
+    obj?.jp.classification ||
+    'unknown_character'
+  );
 }

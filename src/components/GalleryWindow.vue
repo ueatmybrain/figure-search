@@ -2,20 +2,27 @@
   import { EyeIcon, EyeSlashIcon, PhotoIcon } from '@heroicons/vue/24/solid';
   import { ref } from 'vue';
   import { useFigureSearchStore } from '../stores/figuresearch.js';
+  import { getDisplayName } from '../utils.js';
 
   const galleryVisible = ref(true);
   const fsearch = useFigureSearchStore();
+
+  function getMfcImage(src) {
+    console.log(src)
+    const s = src.replaceAll('/thumbnails/', '/')
+      //.replaceAll('/1/', '/2/');
+    console.log(s)
+    return s
+  }
 </script>
 
 <template>
-  <div
-    @click="galleryVisible = !galleryVisible"
-    class="m-1 flex cursor-pointer justify-end hover:opacity-80"
-  >
-    <span class="text-sm mr-2">show/hide gallery</span>
+  <div @click="galleryVisible = !galleryVisible" class="m-1 flex cursor-pointer hover:opacity-80">
     <PhotoIcon class="size-5"></PhotoIcon>
     <EyeIcon class="size-5" v-if="galleryVisible" />
-    <EyeSlashIcon class="size-5" v-if="!galleryVisible" />
+    <EyeSlashIcon class="size-5" v-if="!galleryVisible" /><span class="text-sm ml-2"
+      >show/hide gallery</span
+    >
   </div>
   <label class="modal-backdrop select-none" for="gallery_modal" v-show="galleryVisible">
     <figure
@@ -23,7 +30,7 @@
       :class="(fsearch.currentEntry.value?.images?.length ?? 0) > 1 ? 'hover-gallery' : ''"
     >
       <img
-        :src="src.replaceAll('/thumbnails/', '/').replaceAll('/1/', '/2/')"
+        :src="getMfcImage(src)"
         class="object-scale-down h-60"
         v-for="src in fsearch.currentEntry.value?.images"
       /></figure
@@ -41,7 +48,7 @@
         "
       >
         <img
-          :src="src.replaceAll('/thumbnails/', '/').replaceAll('/1/', '/2/')"
+          :src="getMfcImage(src)"
           class="w-200"
           v-for="src in fsearch.currentEntry?.value?.images"
         />

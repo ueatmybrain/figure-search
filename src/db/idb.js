@@ -46,7 +46,6 @@ export async function figureKeys() {
 export async function figureEntries() {
   const out = [];
   await db.figure.each((row) => out.push({ key: row.key, value: row.value }));
-  console.log(out);
   return out;
 }
 

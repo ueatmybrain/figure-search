@@ -1,7 +1,11 @@
 <script setup>
   import { BanknotesIcon } from '@heroicons/vue/24/solid';
   import { computed, ref } from 'vue';
-  import { CurrencyYenIcon as YenIcon, CurrencyEuroIcon as EuroIcon} from '@heroicons/vue/24/outline';
+  import {
+    CurrencyYenIcon as YenIcon,
+    CurrencyEuroIcon as EuroIcon,
+  } from '@heroicons/vue/24/outline';
+  import { invalidInputs } from '../constants.js';
   const yenNotEuro = ref(false);
   const currencySymbol = computed(() => {
     if (yenNotEuro.value) return '¥';
@@ -11,63 +15,89 @@
   const shippingCost = ref(null);
   const vatPercentage = ref(19);
   const taxPercentage = ref(5);
+  const dhlFeeAdded = ref(false);
+  const dhlFeeAmount = ref(7);
   const totalCost = computed(() => {
-    if (!figurePrice.value || !shippingCost.value) return 'N/A';
+    if (!figurePrice.value || !shippingCost.value) return '';
     totalCost.value = figurePrice.value;
     const vatAndTax =
       ((parseFloat(figurePrice.value) + parseFloat(shippingCost.value)) *
         (parseFloat(taxPercentage.value) + parseFloat(vatPercentage.value))) /
       100;
-    const total = vatAndTax + (parseFloat(figurePrice.value) + parseFloat(shippingCost.value));
+    let total = vatAndTax + (parseFloat(figurePrice.value) + parseFloat(shippingCost.value));
+
+    let dhlFeeText = '';
+    let dhlTotalFeeText = '';
+    if (dhlFeeAdded.value) {
+      total += dhlFeeAmount.value;
+      dhlFeeText = ' + ' + dhlFeeAmount.value + '€ (DHL customs processing fee)';
+      let totalFee = dhlFeeAmount.value + vatAndTax;
+      dhlTotalFeeText = ' (' + totalFee + '€ paid to DHL at the door)';
+    }
     return (
-      vatAndTax +
-      ' ' +
-      currencySymbol.value +
-      '(VAT + Tax) ' +
       total +
       ' ' +
       currencySymbol.value +
-      ' (Total)'
+      ' (Total) [includes ' +
+      vatAndTax +
+      ' ' +
+      currencySymbol.value +
+      ' (VAT + import tax)' +
+      dhlFeeText +
+      ']' +
+      dhlTotalFeeText
     );
   });
 </script>
-
 <template>
-  <input type="checkbox" />
-  <div class="collapse-title text-xs">
-    <BanknotesIcon class="size-5 inline" />
-    Total cost calculator
+  <div class="font-bold">Total cost calculator</div>
+  <div class="mb-4">
+    <span class="text-xs">Currency: </span>
+    <EuroIcon class="size-5 inline" />
+    <input type="checkbox" class="toggle toggle-sm" v-model="yenNotEuro" />
+    <YenIcon class="size-5 inline" />
+    <label class="ml-8 label font-bold text-xs text-primary-content">
+      <input type="checkbox" checked="checked" class="checkbox-xs" v-model="dhlFeeAdded" />
+      DHL fee ({{ dhlFeeAmount }}€)?
+    </label>
   </div>
-  <div class="collapse-content text-sm">
-    <div class="mb-4">
-      Currency:
-      <EuroIcon class="size-5 inline" />
-      <input type="checkbox" class="toggle toggle-sm" v-model="yenNotEuro" />
-      <YenIcon class="size-5 inline" />
+
+  <div class="flex gap-2">
+    <div>
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Figure Price ({{ currencySymbol }})</legend>
+        <input type="text" placeholder="0" class="input w-30" v-model="figurePrice" />
+        <p class="label"></p>
+      </fieldset>
     </div>
-
-    <div class="flex gap-2">
-      <div>
-        <input type="text" placeholder="figure" class="input w-30" v-model="figurePrice" /><span>{{
-          currencySymbol
-        }}</span>
-      </div>
-      <div>
-        <input
-          type="text"
-          placeholder="shipping"
-          class="input w-30"
-          v-model="shippingCost"
-        /><span>{{ currencySymbol }}</span>
-      </div>
-      <div><input type="text" placeholder="VAT" class="input w-15" v-model="vatPercentage" />%</div>
-      <div><input type="text" placeholder="tax" class="input w-15" v-model="taxPercentage" />%</div>
+    <div>
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Shipping Price ({{ currencySymbol }})</legend>
+        <input type="text" placeholder="0" class="input w-30" v-model="shippingCost" />
+        <p class="label">
+          <a href="https://www.remambo.jp/help/calc.html" target="_blank" class="link text-xs"
+            >Shipping calculator</a
+          >
+        </p>
+      </fieldset>
     </div>
-
-    <a href="https://www.remambo.jp/help/calc.html" class="link">Shipping calculator</a>
-
-    <div>{{ totalCost }}</div>
+    <div>
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">VAT (%)</legend>
+        <input type="text" placeholder="0" class="input w-15" v-model="vatPercentage" />
+        <p class="label"></p>
+      </fieldset>
+    </div>
+    <div>
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Customs Tax (%)</legend>
+        <input type="text" placeholder="0" class="input w-15" v-model="taxPercentage" />
+        <p class="label"></p>
+      </fieldset>
+    </div>
   </div>
+
+  <div class="max-w-100">{{ totalCost }}</div>
 </template>
 
 <style scoped></style>
