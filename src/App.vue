@@ -2,6 +2,7 @@
   import { onMounted, ref } from 'vue';
   import { getRandomInt } from './utils.js';
   import Alert from './components/Alert.vue';
+  import JsonEditor from './components/JsonEditor.vue';
 
   const clockTime = ref('');
 
@@ -20,6 +21,7 @@
 </script>
 
 <template>
+
   <div class="min-h-screen flex flex-col">
     <RouterView :key="$route.fullPath" class="flex-grow" />
   </div>

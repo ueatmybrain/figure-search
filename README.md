@@ -20,7 +20,7 @@ Run with 'npm run dev' or in a docker container with the provided Dockerfile.
 # How to use:
 
 1. With the extension (https://github.com/ueatmybrain/mfc-extractor-extension), on a myfigurecollection figure/item page, click "Copy JSON".
-2. On the Figure Search page, press the "paste from clipboard (JSON)" button.
-3. You can now add things like character name, origin, company etc. in english or japanese to your search term by clicking them.
-4. The same goes for the keywords in the dictionary below.
+2. On the Figure Search page, press the "paste new/upgraded figure data" in the top left (smiley JSON button).
+3. You can now add things to your searchbar like character name, origin, company etc. in english or japanese by simply clicking on the words in the table.
+4. The same goes for the keywords in the dictionary, which can be opened with the menu on the right side of the page.
 5. You can add keywords here as well.

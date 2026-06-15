@@ -260,7 +260,7 @@
             <div class="flex gap-2 items-center justify-center">
               <button
                 @click="deleteItem(contextMenuSelection?.value.id)"
-                class="btn btn-xs text-error"
+                class="btn btn-xs text-deathpink"
               >
                 Delete
               </button>

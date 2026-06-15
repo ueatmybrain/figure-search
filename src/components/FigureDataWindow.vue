@@ -16,9 +16,9 @@
   import { PlusCircleIcon } from '@heroicons/vue/24/outline';
   import { EyeIcon, EyeSlashIcon, PhotoIcon, TagIcon } from '@heroicons/vue/24/solid';
   import { useAlertsStore } from '../stores/alerts.js';
-  import GalleryWindow from './GalleryWindow.vue';
   import { tableExclusionList } from '../constants.js';
   import ImageGallery from './ImageGallery.vue';
+  import JsonEditor from './JsonEditor.vue';
   const fsearch = useFigureSearchStore();
   const alerts = useAlertsStore();
   const denpa = ref(null);
@@ -27,6 +27,7 @@
   const contextMenuPos = ref({ x: 0, y: 0 });
   const ctxMenu = ref(null);
   const tagsVisible = ref(false);
+  const showJsonEditor = ref(false);
 
   function updateMouse(e) {
     mouse.value.x = e.clientX;
@@ -39,6 +40,7 @@
     () => fsearch.currentEntry,
     () => {
       componentKey.value++;
+      showJsonEditor.value = false;
     }
   );
 
@@ -79,7 +81,9 @@
   async function copyFigureJsonToCb() {
     const stringifiedData = JSON.stringify(fsearch.currentEntry?.value, null, 2);
     await navigator.clipboard.writeText(stringifiedData);
-    alerts.push({message:'Copied data for ' + getDisplayName(fsearch.currentEntry?.value) + '!'});
+    alerts.push({
+      message: 'Copied data for ' + getDisplayName(fsearch.currentEntry?.value) + '!',
+    });
   }
 </script>
 
@@ -100,8 +104,17 @@
             src="https://static.myfigurecollection.net/ressources/assets/webicon.png"
           /></button
       ></a>
-      <div class="badge hover:badge-outline cursor-pointer" @click="copyFigureJsonToCb">Copy JSON</div>
+      <div class="badge hover:badge-outline cursor-pointer" @click="copyFigureJsonToCb">
+        Copy JSON
+      </div>
+      <div
+        class="badge hover:badge-outline cursor-pointer"
+        @click="showJsonEditor = !showJsonEditor"
+      >
+        <span v-if="!showJsonEditor">Open</span><span v-if="showJsonEditor">Close</span>JSON Editor
+      </div>
     </div>
+    <JsonEditor v-if="showJsonEditor" class="h-96 w-full overflow-scroll mx-auto rounded-lg my-2" />
     <div>
       <div class="overflow-x-auto w-150">
         <table class="table table-xs">
@@ -160,7 +173,7 @@
             </tr>
           </tbody>
         </table>
-        <div v-if="fsearch.currentEntry?.value?.various" class="text-red-400 text-xs py-8">
+        <div v-if="fsearch.currentEntry?.value?.various" class="text-deathpink text-xs py-8">
           {{ fsearch.currentEntry?.value?.various }}
         </div>
       </div>

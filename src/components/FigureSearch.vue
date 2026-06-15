@@ -94,7 +94,7 @@
 </script>
 
 <template>
-  <div class="w-150">
+  <div class="w-150 mb-8">
     <FigureDataWindow></FigureDataWindow>
     <PrettySm
       ><div class="w-135 m-4">
@@ -232,7 +232,7 @@
         <p class="py-4">This will delete all DB entries and can't be undone.</p>
         <div class="flex flex-row ml-50">
           <form method="dialog" class="flex">
-            <button @click="clearIndexedDb()" class="btn text-error mr-10">Clear IndexedDB</button>
+            <button @click="clearIndexedDb()" class="btn text-deathpink mr-10">Clear IndexedDB</button>
             <button class="btn">Cancel</button>
           </form>
         </div>

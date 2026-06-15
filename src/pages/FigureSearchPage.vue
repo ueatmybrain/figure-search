@@ -3,11 +3,13 @@
   import FigureSearch from '../components/FigureSearch.vue';
   import ListViewSelector from '../components/ListViewSelector.vue';
   import PrettySm from '../components/PrettySm.vue';
+  import JsonEditor from '../components/JsonEditor.vue';
   import {
     ChevronDoubleRightIcon as ChevronR,
     ChevronDoubleLeftIcon as ChevronL,
   } from '@heroicons/vue/24/outline';
   import SideMenu from '../components/SideMenu.vue';
+  import { ref } from 'vue';
 </script>
 
 <template>

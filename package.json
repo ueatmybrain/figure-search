@@ -11,16 +11,20 @@
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
     "@tailwindcss/vite": "^4.1.14",
+    "ace-builds": "^1.44.0",
+    "ajv": "^8.20.0",
     "daisyui": "^5.3.7",
     "dexie": "^4.2.1",
     "pinia": "^3.0.4",
     "tailwindcss": "^4.1.14",
     "vue": "^3.5.22",
-    "vue-router": "^4.6.3"
+    "vue-codemirror": "^6.1.1",
+    "vue-router": "^4.6.3",
+    "vue3-ace-editor": "^2.2.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
     "prettier": "^3.6.2",
-    "vite": "^7.1.7"
+    "vite": "^8.0.16"
   }
 }

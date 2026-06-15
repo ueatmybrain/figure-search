@@ -3,12 +3,23 @@
   import {
     CurrencyYenIcon as YenIcon,
     CurrencyEuroIcon as EuroIcon,
+    CurrencyDollarIcon as DollarIcon,
   } from '@heroicons/vue/24/outline';
   import { invalidInputs } from '../constants.js';
+
+  function switchPrimaryCurrency() {
+    if (primaryCurrency.value === '€') {
+      primaryCurrency.value = '$';
+    }
+    if ((primaryCurrency.value = '$')) {
+      primaryCurrency.value = '€';
+    }
+  }
+  const primaryCurrency = ref('€');
   const yenNotEuro = ref(false);
   const currencySymbol = computed(() => {
     if (yenNotEuro.value) return '¥';
-    else return '€';
+    else return primaryCurrency.value;
   });
   const figurePrice = ref(null);
   const shippingCost = ref(null);
@@ -60,9 +71,10 @@
     let dhlTotalFeeText = '';
     if (dhlFeeAdded.value) {
       total += dhlFeeAmount.value;
-      dhlFeeText = ' + ' + dhlFeeAmount.value + '€ (DHL customs processing fee)';
+      dhlFeeText =
+        ' + ' + dhlFeeAmount.value + currencySymbol.value + ' (DHL customs processing fee)';
       let totalFee = dhlFeeAmount.value + vatAndTax;
-      dhlTotalFeeText = ' (' + totalFee + '€ paid to DHL at the door)';
+      dhlTotalFeeText = ' (' + totalFee + currencySymbol.value + ' paid to DHL at the door)';
     }
     return (
       total +
@@ -84,6 +96,7 @@
   <div class="mb-4">
     <span class="text-xs">Currency: </span>
     <EuroIcon class="size-5 inline" />
+
     <input
       type="checkbox"
       class="toggle toggle-sm"
@@ -91,7 +104,9 @@
       :checked="yenNotEuro.value"
     />
     <YenIcon class="size-5 inline" />
-    <p class="label text-xs mx-2"> (at exchange rate {{ yenEuroCourse }})</p>
+    <p class="label text-xs mx-2">
+      (at ¥ -> {{ primaryCurrency }} exchange rate: {{ yenEuroCourse }})
+    </p>
     <label class="ml-4 label font-bold text-xs text-primary-content">
       <input type="checkbox" checked="checked" class="checkbox-xs" v-model="dhlFeeAdded" />
       DHL fee ({{ dhlFeeAmount + currencySymbol }})?

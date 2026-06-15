@@ -4,4 +4,6 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue(),tailwindcss(),],
+  optimizeDeps: {
+    exclude: ['js-big-decimal']}
 })
