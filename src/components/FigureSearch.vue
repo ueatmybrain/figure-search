@@ -16,13 +16,32 @@
     figureSet,
     idbClear,
     setDictEntry,
+    settingsAlter,
+    settingsGet,
   } from '../db/idb.js';
   import { useAlertsStore } from '../stores/alerts.js';
   import PrettySm from './PrettySm.vue';
   const fsearch = useFigureSearchStore();
-  const customSearchLink = ref('https://www.ebay.de/sch/i.html?_nkw=');
-  const customSearchLabel = ref('ebay');
+  const customSearchLink = ref('');
+  const customSearchLabel = ref('');
+
   const editCustomVisible = ref(false);
+  async function initCustom() {
+    const cs = await settingsGet('custom-search');
+    if (cs) {
+      customSearchLink.value = cs.link;
+      customSearchLabel.value = cs.label;
+    } else {
+      customSearchLink.value = 'https://www.ebay.de/sch/i.html?_nkw=';
+      customSearchLabel.value = 'ebay';
+    }
+  }
+  async function updateCustomSearch() {
+    await settingsAlter('custom-search', {
+      link: customSearchLink.value,
+      label: customSearchLabel.value,
+    });
+  }
 
   function initSearch() {
     if (fsearch.currentEntry?.value && fsearch.currentEntry?.value?.meta_searchterm) {
@@ -35,6 +54,7 @@
   onMounted(async () => {
     searchInputElem = useTemplateRef('search-input');
     initSearch();
+    await initCustom();
   });
   function clearIndexedDb() {
     idbClear();
@@ -48,6 +68,12 @@
       initSearch();
     }
   );
+  watch(customSearchLink, async () => {
+    await updateCustomSearch();
+  });
+  watch(customSearchLabel, async () => {
+    await updateCustomSearch();
+  });
   let saveTimer;
   watch(
     () => fsearch.searchInput,

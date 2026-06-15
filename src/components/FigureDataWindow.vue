@@ -1,11 +1,12 @@
 <script setup>
-  import { onMounted, ref } from 'vue';
+  import { onMounted, ref, toRaw, watch } from 'vue';
   import FlagIcon from './FlagIcon.vue';
   import { figureDelete, figureGet, figureSet } from '../db/idb.js';
   import PrettySm from './PrettySm.vue';
   import {
     copyToCb,
     getCategoryColor,
+    getDisplayName,
     getJpValue,
     isIterable,
     transformValue,
@@ -17,6 +18,7 @@
   import { useAlertsStore } from '../stores/alerts.js';
   import GalleryWindow from './GalleryWindow.vue';
   import { tableExclusionList } from '../constants.js';
+  import ImageGallery from './ImageGallery.vue';
   const fsearch = useFigureSearchStore();
   const alerts = useAlertsStore();
   const denpa = ref(null);
@@ -30,6 +32,15 @@
     mouse.value.x = e.clientX;
     mouse.value.y = e.clientY;
   }
+
+  const componentKey = ref(0);
+
+  watch(
+    () => fsearch.currentEntry,
+    () => {
+      componentKey.value++;
+    }
+  );
 
   onMounted(async () => {
     await fsearch.updateEntries();
@@ -64,19 +75,33 @@
   function splitDataString(str) {
     return str.split('_$split$_');
   }
+
+  async function copyFigureJsonToCb() {
+    const stringifiedData = JSON.stringify(fsearch.currentEntry?.value, null, 2);
+    await navigator.clipboard.writeText(stringifiedData);
+    alerts.push({message:'Copied data for ' + getDisplayName(fsearch.currentEntry?.value) + '!'});
+  }
 </script>
 
 <template>
   <div id="FigureDataWindow" v-if="fsearch.entries.length > 0">
-    <GalleryWindow v-if="!(fsearch.hasAdultTag(fsearch.currentEntry) && fsearch.nsfwHidden)" />
-    <a
-      :href="'https://myfigurecollection.net/item/' + fsearch.currentEntry?.value?.id"
-      target="_blank"
-    >
-      <div class="badge hover:badge-outline cursor-pointer">
-        MFC: {{ fsearch.currentEntry?.value?.id }}
-      </div></a
-    >
+    <ImageGallery
+      :key="componentKey"
+      v-if="!(fsearch.hasAdultTag(fsearch.currentEntry) && fsearch.nsfwHidden)"
+    />
+    <div class="flex flex-row my-2 gap-2">
+      <a
+        :href="'https://myfigurecollection.net/item/' + fsearch.currentEntry?.value?.id"
+        target="_blank"
+      >
+        <button class="badge hover:badge-outline cursor-pointer">
+          Open entry on<img
+            class="size-6 p-1"
+            src="https://static.myfigurecollection.net/ressources/assets/webicon.png"
+          /></button
+      ></a>
+      <div class="badge hover:badge-outline cursor-pointer" @click="copyFigureJsonToCb">Copy JSON</div>
+    </div>
     <div>
       <div class="overflow-x-auto w-150">
         <table class="table table-xs">

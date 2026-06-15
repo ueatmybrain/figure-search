@@ -1,5 +1,4 @@
 <script setup>
-  import { BanknotesIcon } from '@heroicons/vue/24/solid';
   import { computed, ref } from 'vue';
   import {
     CurrencyYenIcon as YenIcon,
@@ -17,14 +16,45 @@
   const taxPercentage = ref(5);
   const dhlFeeAdded = ref(false);
   const dhlFeeAmount = ref(7);
+  const yenEuroCourse = ref(0.0054);
+
+  function euroToYen(euro) {
+    return Math.round(euro / yenEuroCourse.value);
+  }
+  function yenToEuro(yen) {
+    return Math.round(yen * yenEuroCourse.value * 100) / 100;
+  }
+  function switchCurrency() {
+    if (yenNotEuro.value) {
+      if (figurePrice.value) {
+        figurePrice.value = yenToEuro(figurePrice.value);
+      }
+      if (shippingCost.value) {
+        shippingCost.value = yenToEuro(shippingCost.value);
+      }
+      dhlFeeAmount.value = yenToEuro(dhlFeeAmount.value);
+    } else {
+      if (figurePrice.value) {
+        figurePrice.value = euroToYen(figurePrice.value);
+      }
+      if (shippingCost.value) {
+        shippingCost.value = euroToYen(shippingCost.value);
+      }
+      dhlFeeAmount.value = euroToYen(dhlFeeAmount.value);
+    }
+    yenNotEuro.value = !yenNotEuro.value;
+  }
   const totalCost = computed(() => {
     if (!figurePrice.value || !shippingCost.value) return '';
     totalCost.value = figurePrice.value;
-    const vatAndTax =
+    const vatAndTax = Math.round(
       ((parseFloat(figurePrice.value) + parseFloat(shippingCost.value)) *
         (parseFloat(taxPercentage.value) + parseFloat(vatPercentage.value))) /
-      100;
-    let total = vatAndTax + (parseFloat(figurePrice.value) + parseFloat(shippingCost.value));
+        100
+    );
+    let total = Math.round(
+      vatAndTax + (parseFloat(figurePrice.value) + parseFloat(shippingCost.value))
+    );
 
     let dhlFeeText = '';
     let dhlTotalFeeText = '';
@@ -54,11 +84,17 @@
   <div class="mb-4">
     <span class="text-xs">Currency: </span>
     <EuroIcon class="size-5 inline" />
-    <input type="checkbox" class="toggle toggle-sm" v-model="yenNotEuro" />
+    <input
+      type="checkbox"
+      class="toggle toggle-sm"
+      @click="switchCurrency()"
+      :checked="yenNotEuro.value"
+    />
     <YenIcon class="size-5 inline" />
-    <label class="ml-8 label font-bold text-xs text-primary-content">
+    <p class="label text-xs mx-2"> (at exchange rate {{ yenEuroCourse }})</p>
+    <label class="ml-4 label font-bold text-xs text-primary-content">
       <input type="checkbox" checked="checked" class="checkbox-xs" v-model="dhlFeeAdded" />
-      DHL fee ({{ dhlFeeAmount }}€)?
+      DHL fee ({{ dhlFeeAmount + currencySymbol }})?
     </label>
   </div>
 

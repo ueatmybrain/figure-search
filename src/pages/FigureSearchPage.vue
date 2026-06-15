@@ -15,7 +15,11 @@
     <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content">
       <SideMenu class="fixed z-50 right-0"></SideMenu>
-      <label for="my-drawer-4" aria-label="open sidebar" class="btn btn-ghost hover:bg-base-400 h-full fixed">
+      <label
+        for="my-drawer-4"
+        aria-label="open sidebar"
+        class="btn btn-ghost hover:bg-base-400 h-full fixed"
+      >
         <ChevronR class="size-5" />
       </label>
       <div class="mx-auto flex flex-row mt-2">

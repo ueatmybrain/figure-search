@@ -80,7 +80,7 @@ export function stringifyCharacters(obj) {
 
 export function getDisplayName(obj) {
   return (
-    obj?.character ||
+    stringifyCharacters(obj?.character) ||
     stringifyCharacters(obj?.characters) ||
     obj?.title ||
     obj?.classification ||
@@ -90,7 +90,7 @@ export function getDisplayName(obj) {
 
 export function getJpDisplayName(obj) {
   return (
-    obj?.jp.character ||
+    stringifyCharacters(obj?.jp.character) ||
     stringifyCharacters(obj?.jp.characters) ||
     obj?.jp.title ||
     obj?.jp.classification ||

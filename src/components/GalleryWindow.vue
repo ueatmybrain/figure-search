@@ -1,18 +1,40 @@
 <script setup>
   import { EyeIcon, EyeSlashIcon, PhotoIcon } from '@heroicons/vue/24/solid';
-  import { ref } from 'vue';
+  import { onMounted, ref, watch } from 'vue';
   import { useFigureSearchStore } from '../stores/figuresearch.js';
   import { getDisplayName } from '../utils.js';
 
   const galleryVisible = ref(true);
   const fsearch = useFigureSearchStore();
 
+  const firstImageLoads = ref(false);
+  async function checkFirstImageLoads() {
+    firstImageLoads.value = false;
+    const img = new Image();
+    if (!fsearch.currentEntry?.value?.images) {
+      return;
+    }
+    img.src = getMfcImage(fsearch.currentEntry?.value?.images[0]);
+    img.onload = () => {
+      firstImageLoads.value = true;
+    };
+
+    img.onerror = () => {
+      firstImageLoads.value = false;
+    };
+  }
+  watch(
+    () => fsearch.currentEntry,
+    () => {
+      checkFirstImageLoads();
+    }
+  );
+  onMounted(() => {
+    checkFirstImageLoads();
+  });
   function getMfcImage(src) {
-    console.log(src)
-    const s = src.replaceAll('/thumbnails/', '/')
-      //.replaceAll('/1/', '/2/');
-    console.log(s)
-    return s
+    const s = src.replaceAll('/thumbnails/', '/').replaceAll('/1/', '/2/');
+    return s;
   }
 </script>
 
@@ -30,9 +52,14 @@
       :class="(fsearch.currentEntry.value?.images?.length ?? 0) > 1 ? 'hover-gallery' : ''"
     >
       <img
+        v-if="firstImageLoads"
+        :src="getMfcImage(fsearch.currentEntry.value?.images[0])"
+        class="object-scale-down h-60"
+      />
+      <img
         :src="getMfcImage(src)"
         class="object-scale-down h-60"
-        v-for="src in fsearch.currentEntry.value?.images"
+        v-for="src in fsearch.currentEntry.value?.images.slice(1)"
       /></figure
   ></label>
 

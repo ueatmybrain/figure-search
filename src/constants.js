@@ -8,7 +8,9 @@ export const wordDict = [
   { en: 'Manga', jp: ['漫画', 'マンガ'] },
   { en: 'Junk', jp: ['ジャンク'] },
   { en: 'Book', jp: ['本'] },
+  { en: 'Doujin', jp: ['同人'] },
 ];
+
 export const categoryColors = {
   Prepainted: '#0f830f',
   Action_Dolls: '#0080ff',

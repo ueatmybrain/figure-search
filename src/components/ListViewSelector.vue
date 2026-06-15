@@ -170,7 +170,7 @@
               </div>
               <img
                 :src="entry.value.icon"
-                class="rounded-full cursor-pointer w-16 h-16 object-cover ring-2 ring-offset-2 border-deathpink hover:opacity-90"
+                class="rounded-full cursor-pointer w-16 h-16 ring-2 ring-offset-2 border-deathpink"
                 :class="entry.value.id === fsearch.currentEntry.value.id ? 'ring-6' : ''"
                 :style="{ '--tw-ring-color': getCategoryColor(entry.value.category) }"
               />
@@ -191,7 +191,7 @@
             <div :style="'color: ' + getCategoryColor(entry.value?.category)">
               {{ entry.value?.category }}
             </div>
-            <div>Last updated: {{ new Date(entry.value.capturedAt).toLocaleString('de-DE') }}</div>
+            <div v-if="false">Last updated: {{ new Date(entry.value.capturedAt).toLocaleString('de-DE') }}</div>
           </div>
         </div>
       </div>
@@ -228,7 +228,7 @@
             {{ figureTooltip?.category }}
           </div>
 
-          <div class="text-sm">
+          <div v-if="false" class="text-sm">
             {{ new Date(figureTooltip.capturedAt).toLocaleString('de-DE') }}
           </div>
         </div></PrettySm

@@ -5,18 +5,19 @@ export const useAlertsStore = defineStore('alerts', {
     queue: [],
   }),
   actions: {
-    push(alert) {
-      this.queue.push(alert);
-      console.log(alert);
+    //alertObject = {message: string, type: 'error'||'info'||'warning'||'success' ('info' is the default)}
+    push(alertObject) {
+      this.queue.push(alertObject);
+      console.log(alertObject);
       setTimeout(() => {
-        const index = this.queue.indexOf(alert);
+        const index = this.queue.indexOf(alertObject);
         if (index !== -1) {
           this.queue.splice(index, 1);
         }
       }, 8000);
     },
-    remove(alert) {
-      const index = this.queue.indexOf(alert);
+    remove(alertObject) {
+      const index = this.queue.indexOf(alertObject);
       if (index !== -1) {
         this.queue.splice(index, 1);
       }
