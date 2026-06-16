@@ -1,5 +1,7 @@
 import { categoryColors, invalidInputs } from './constants.js';
 import { useAlertsStore } from './stores/alerts.js';
+import { figureGet, figureSet } from './db/idb.js';
+import { useFigureSearchStore } from './stores/figuresearch.js';
 
 export function getRandomInt(min, max) {
   const minCeiled = Math.ceil(min);
@@ -96,4 +98,44 @@ export function getJpDisplayName(obj) {
     obj?.jp.classification ||
     'unknown_character'
   );
+}
+
+export async function tryAddFigure(obj) {
+  const alerts = useAlertsStore();
+  const fsearch = useFigureSearchStore();
+  let figureObject = obj
+  try {
+    if (!figureObject.character && !figureObject.characters && !figureObject.origin) {
+      throw new SyntaxError("Input doesn't fit figure schema.");
+    }
+
+    let oldData = await figureGet(figureObject.id);
+    if (oldData) {
+      const mergedFigure = {
+        ...oldData.value,
+        ...figureObject,
+      };
+      figureObject = mergedFigure;
+    }
+    await figureSet(figureObject.id, figureObject);
+    await fsearch.updateEntries();
+    alerts.push({
+      message: 'Added/Updated "' + getDisplayName(figureObject) + '" successfully!',
+      type: 'success',
+    });
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      alerts.push({
+        message:
+          'Could not add data. No valid figure data JSON object in clipboard.\n' + e.message,
+        type: 'error',
+      });
+      return;
+    }
+    alerts.push({
+      message: e,
+      type: 'error',
+    });
+    throw e;
+  }
 }

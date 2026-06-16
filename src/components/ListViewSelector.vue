@@ -4,6 +4,7 @@
     getDisplayName,
     getJpDisplayName,
     stringifyCharacters,
+    tryAddFigure,
   } from '../utils.js';
   import { figureDelete, figureGet, figureSet } from '../db/idb.js';
   import { computed, onMounted, ref } from 'vue';
@@ -77,37 +78,16 @@
 
   async function addFigureFromClipboard() {
     const blobText = await navigator.clipboard.readText();
+    let figureObject;
     try {
-      let figureObject = JSON.parse(blobText);
-
-      let oldData = await figureGet(figureObject.id);
-      if (oldData) {
-        const mergedFigure = {
-          ...oldData.value,
-          ...figureObject
-        };
-      figureObject = mergedFigure;
-      }
-      await figureSet(figureObject.id, figureObject);
-      await fsearch.updateEntries();
+      figureObject = JSON.parse(blobText);
+    } catch (err) {
       alerts.push({
-        message: 'Added/Updated "' + getDisplayName(figureObject) + '" successfully!',
-        type: 'success',
-      });
-    } catch (e) {
-      if (e instanceof SyntaxError) {
-        alerts.push({
-          message: 'Could not add data. No figure data JSON object in clipboard.',
-          type: 'error',
-        });
-        return;
-      }
-      alerts.push({
-        message: e,
+        message: 'Invalid data (not JSON)',
         type: 'error',
       });
-      throw e;
     }
+    await tryAddFigure(figureObject);
   }
   const tooltipStyle = computed(() => {
     let left = mouse.value.x + 10;
@@ -191,7 +171,9 @@
             <div :style="'color: ' + getCategoryColor(entry.value?.category)">
               {{ entry.value?.category }}
             </div>
-            <div v-if="false">Last updated: {{ new Date(entry.value.capturedAt).toLocaleString('de-DE') }}</div>
+            <div v-if="false">
+              Last updated: {{ new Date(entry.value.capturedAt).toLocaleString('de-DE') }}
+            </div>
           </div>
         </div>
       </div>
