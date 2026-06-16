@@ -1,7 +1,6 @@
 <script setup>
   import { ref, watch, onMounted } from 'vue';
   import { VAceEditor } from 'vue3-ace-editor';
-  import Ajv from 'ajv';
 
   import 'ace-builds/src-noconflict/mode-json';
   import 'ace-builds/src-noconflict/theme-nord_dark';
@@ -9,59 +8,45 @@
 
   const code = ref(``);
 
-  const ajv = new Ajv({ allErrors: true });
-
-  const schema = {
-    type: 'object',
-    //required: ['key'],
-    //properties: {
-    // key: { type: 'string' },
-    //},
-    additionalProperties: true,
-  };
-
-  const validate = ajv.compile(schema);
-
   const editorRef = ref(null);
 
   function lint(editor) {
     if (!editor) return;
 
     const session = editor.getSession();
-    let json;
 
     try {
-      json = JSON.parse(editor.getValue());
+      JSON.parse(editor.getValue());
+
+      session.clearAnnotations();
     } catch (e) {
+      const match = e.message.match(/position (\d+)/);
+
+      let row = 0;
+      let column = 0;
+
+      if (match) {
+        const pos = Number(match[1]);
+
+        const text = editor.getValue();
+        const before = text.slice(0, pos);
+
+        const lines = before.split('\n');
+
+        row = lines.length - 1;
+        column = lines[lines.length - 1].length;
+      }
+
       session.setAnnotations([
         {
-          row: 0,
-          column: 0,
-          text: 'Invalid JSON syntax',
+          row,
+          column,
+          text: e.message,
           type: 'error',
         },
       ]);
-      return;
-    }
-
-    // 2. Validate schema
-    const valid = validate(json);
-
-    if (!valid) {
-      session.setAnnotations(
-        validate.errors.map((err) => ({
-          row: 0,
-          column: 0,
-          text: `${err.instancePath || '/'} ${err.message}`,
-          type: 'error',
-        }))
-      );
-    } else {
-      session.clearAnnotations();
     }
   }
-
-  // debounce-like watcher behavior
   let timeout;
   function onChange(value, editor) {
     clearTimeout(timeout);

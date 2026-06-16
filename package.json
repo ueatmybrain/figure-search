@@ -12,7 +12,6 @@
     "@heroicons/vue": "^2.2.0",
     "@tailwindcss/vite": "^4.1.14",
     "ace-builds": "^1.44.0",
-    "ajv": "^8.20.0",
     "daisyui": "^5.3.7",
     "dexie": "^4.2.1",
     "pinia": "^3.0.4",
