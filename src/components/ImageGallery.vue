@@ -39,6 +39,9 @@
       case 'ArrowRight':
         modalNext();
         break;
+      case 'Escape':
+        closeModal();
+        break;
     }
   }
 
@@ -88,7 +91,7 @@
     <div class="cursor-zoom-in hover:opacity-85">
       <img @click="openModal(0)" :src="getMfcImage(galleryImages[0])" class="h-60" />
     </div>
-    <div class="grid grid-flow-col auto-cols-max grid-rows-2 bg-base-200">
+    <div class="grid grid-cols-4 auto-cols-max grid-rows-2 bg-base-200">
       <img
         @click="openModal(idx + 1)"
         :src="getMfcImage(src)"

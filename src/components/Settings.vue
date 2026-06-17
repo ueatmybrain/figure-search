@@ -12,7 +12,7 @@
   import { useAlertsStore } from '../stores/alerts.js';
   const fsearch = useFigureSearchStore();
   const alerts = useAlertsStore();
-
+  const version = __COMMIT_HASH__;
   async function copyExportDataToCb() {
     const stringifiedData = JSON.stringify(
       fsearch.entries.map((entry) => entry.value).reverse(),
@@ -30,11 +30,11 @@
     try {
       figuresArray = JSON.parse(blobText);
       if (!figuresArray[Symbol.iterator]) {
-        throw SyntaxError("Object not iterable.")
+        throw SyntaxError('Object not iterable.');
       }
     } catch (err) {
       alerts.push({
-        message: 'Invalid data. ' +err.message,
+        message: 'Invalid data. ' + err.message,
         type: 'error',
       });
     }
@@ -115,6 +115,7 @@
         <div class="text-xs text-center pt-2">Export/Copy all data</div>
       </div>
     </div>
+    <div class="text-sm opacity-30 absolute bottom-[-1rem] right-0">build version: {{ version }}</div>
   </div>
 </template>
 
