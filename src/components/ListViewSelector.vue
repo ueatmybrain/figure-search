@@ -131,24 +131,27 @@
             <FaceSmileIcon class="size-16 p-5 fixed" /><ClipboardIcon class="size-16 pb-2 pt-1" />
           </div>
         </div>
-        <div type="title" class=" is-drawer-close:hidden">
+        <div type="title" class="is-drawer-close:hidden">
           <div class="font-bold">Paste new / updated figure data (JSON)</div>
         </div>
       </div>
     </li>
     <li v-if="fsearch.entries.length !== 0">
       <div class="flex flex-row gap-4 p-4 hover:bg-base-300 rounded-lg max-w-80">
-        <label class="cursor-pointer" for="my-drawer-4" aria-label="open sidebar">
-          <div type="icon">
-            <div class="fixed text-xs size-16 text-center mt-11 font-stroke">Filters</div>
-            <div class="rounded-full w-16 h-16 object-cover ring-2 ring-offset-2 ring-gray-500">
-              <FilterIcon class="size-16 pb-2 pt-1" />
+          <label class="cursor-pointer" for="my-drawer-4" aria-label="open sidebar">
+            <div type="icon">
+              <div class="fixed text-xs size-16 text-center mt-11 font-stroke">Filters</div>
+              <div class="rounded-full w-16 h-16 object-cover ring-2 ring-offset-2 ring-gray-500">
+                <FilterIcon class="size-16 pb-2 pt-1" />
+              </div>
             </div>
-          </div>
-        </label>
+          </label>
+
         <div type="title" class="truncate flex flex-row items-center gap-2 is-drawer-close:hidden">
-          <SelectionFilters /><button @click="fsearch.resetFilters()" class="btn btn-sm btn-ghost">
-            <XMarkIcon class="size-5" />
+          <SelectionFilters />
+          <button @click="fsearch.resetFilters()" class="btn btn-sm">
+            Reset
+            <XMarkIcon class="size-3" />
           </button>
         </div>
       </div>
