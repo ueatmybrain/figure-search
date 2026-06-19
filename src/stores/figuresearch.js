@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { figureEntries } from '../db/idb.js';
 import { settingsAlter, settingsGet } from '../db/idb.js';
-import { removeInvalid } from '../utils.js';
+import { getDisplayName, getJpDisplayName, removeInvalid } from '../utils.js';
 
 export const useFigureSearchStore = defineStore('fsearch', {
   // arrow function recommended for full type inference
@@ -12,9 +12,14 @@ export const useFigureSearchStore = defineStore('fsearch', {
     inputHistory: [],
     autoRemoveInvalid: true,
     nsfwHidden: true,
+    categoryFilter: null,
+    searchFilter: ''
   }),
   getters: {
-    filteredEntries() {
+    categories() {
+      return [...new Set(this.entries.map((entry) => entry.value.category))];
+    },
+    nsfwFilteredEntries() {
       if (!this.nsfwHidden){return this.entries;}
       let filtered = []
       for (const entry of this.entries) {
@@ -23,9 +28,33 @@ export const useFigureSearchStore = defineStore('fsearch', {
         }
       }
       return filtered
+    },
+    filteredEntries() {
+      let entries = this.nsfwFilteredEntries;
+      if (this.categoryFilter) {
+        entries = entries.filter((entry) => entry.value.category === this.categoryFilter);
+      }
+      if (this.searchFilter.length > 1) {
+        entries = entries.filter((entry) => {
+          const searchText = (
+            getDisplayName(entry.value) +
+            ' ' +
+            getJpDisplayName(entry.value)
+          ).toLowerCase();
+
+          return searchText.includes(this.searchFilter.toLowerCase());
+        });
+      }
+
+      return entries;
+
     }
   },
   actions: {
+    resetFilters() {
+      this.searchFilter = '';
+      this.categoryFilter = null;
+    },
     pasteToSearch(event) {
       this.searchInput = [this.searchInput, event.currentTarget.innerText].join(' ');
       if (this.autoRemoveInvalid) this.removeInvalidSearchCharacters();

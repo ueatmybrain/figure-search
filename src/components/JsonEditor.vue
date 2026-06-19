@@ -5,6 +5,8 @@
   import 'ace-builds/src-noconflict/mode-json';
   import 'ace-builds/src-noconflict/theme-nord_dark';
   import 'ace-builds/src-noconflict/ext-language_tools';
+  import { toJsonString } from '../utils.js';
+  import { useFigureSearchStore } from '../stores/figuresearch.js';
 
   const code = ref(``);
 
@@ -52,6 +54,8 @@
     clearTimeout(timeout);
     timeout = setTimeout(() => lint(editor), 150);
   }
+
+  onMounted(() => {code.value = toJsonString(useFigureSearchStore().currentEntry.value)})
 </script>
 
 <template>

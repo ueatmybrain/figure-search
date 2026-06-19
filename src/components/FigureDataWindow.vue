@@ -104,15 +104,23 @@
             src="https://static.myfigurecollection.net/ressources/assets/webicon.png"
           /></button
       ></a>
-      <div class="badge hover:badge-outline cursor-pointer" @click="copyFigureJsonToCb">
-        Copy JSON
+      <div class="">
+        <div class="badge hover:badge-outline cursor-pointer" @click="copyFigureJsonToCb">
+          Copy JSON
+        </div>
+        <div
+          class="badge hover:badge-outline cursor-pointer"
+          @click="showJsonEditor = !showJsonEditor"
+        >
+          <span v-if="!showJsonEditor">Open</span><span v-if="showJsonEditor">Close</span>JSON
+          Editor
+        </div>
       </div>
-      <div
-        class="badge hover:badge-outline cursor-pointer"
-        @click="showJsonEditor = !showJsonEditor"
-      >
-        <span v-if="!showJsonEditor">Open</span><span v-if="showJsonEditor">Close</span>JSON Editor
-      </div>
+    </div>
+    <div class="text-sm opacity-85" v-if="showJsonEditor">
+      <span class="text-deathpink font-bold">Note: </span>If you make changes to the data here that
+      you want to save, copy the entire edited JSON (Ctrl+A then Ctrl+C) and paste it like when
+      adding a new figure using the button in the top left!
     </div>
     <JsonEditor v-if="showJsonEditor" class="h-96 w-full overflow-scroll mx-auto rounded-lg my-2" />
     <div>

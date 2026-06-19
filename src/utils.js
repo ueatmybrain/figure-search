@@ -139,3 +139,8 @@ export async function tryAddFigure(obj) {
     throw e;
   }
 }
+
+export function toJsonString(obj) {
+  const stringifiedData = JSON.stringify(obj, null, 2);
+  return stringifiedData;
+}

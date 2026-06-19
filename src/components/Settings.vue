@@ -56,6 +56,7 @@
       <div class="text-sm">Manage IndexedDB</div>
       <button onclick="are_you_sure.showModal()" class="btn text-deathpink">Clear IndexedDB</button>
     </div>
+    <div class="divider"></div>
     <div>
       <span class="text-sm">Show NSFW figures</span>
       <div class="flex flex-row gap-2 w-80">
@@ -73,7 +74,8 @@
         </div>
       </div>
     </div>
-    <span class="text-sm">Export/Import figure data</span>
+    <div class="divider"></div>
+    <div class="text-sm">Export/Import figure data</div>
     <div class="flex flex-row gap-2">
       <div
         @click="pasteExportDataFromCb"
@@ -115,7 +117,9 @@
         <div class="text-xs text-center pt-2">Export/Copy all data</div>
       </div>
     </div>
-    <div class="text-sm opacity-30 absolute bottom-[-1rem] right-0">build version: {{ version }}</div>
+    <div class="text-sm opacity-30 absolute bottom-[-1rem] right-0">
+      build version: {{ version }}
+    </div>
   </div>
 </template>
 

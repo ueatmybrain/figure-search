@@ -11,7 +11,13 @@
   import { useFigureSearchStore } from '../stores/figuresearch.js';
   import { useAlertsStore } from '../stores/alerts.js';
   import PrettySm from './PrettySm.vue';
-  import { FaceSmileIcon, ClipboardIcon } from '@heroicons/vue/24/outline';
+  import {
+    FaceSmileIcon,
+    ClipboardIcon,
+    FunnelIcon as FilterIcon,
+    XMarkIcon,
+  } from '@heroicons/vue/24/outline';
+  import SelectionFilters from './SelectionFilters.vue';
 
   const fsearch = useFigureSearchStore();
   const alerts = useAlertsStore();
@@ -125,11 +131,29 @@
             <FaceSmileIcon class="size-16 p-5 fixed" /><ClipboardIcon class="size-16 pb-2 pt-1" />
           </div>
         </div>
-        <div type="title" class="truncate overflow-ellipsis is-drawer-close:hidden">
-          <div class="font-bold">Paste new/updated figure data</div>
+        <div type="title" class=" is-drawer-close:hidden">
+          <div class="font-bold">Paste new / updated figure data (JSON)</div>
         </div>
       </div>
     </li>
+    <li v-if="fsearch.entries.length !== 0">
+      <div class="flex flex-row gap-4 p-4 hover:bg-base-300 rounded-lg max-w-80">
+        <label class="cursor-pointer" for="my-drawer-4" aria-label="open sidebar">
+          <div type="icon">
+            <div class="fixed text-xs size-16 text-center mt-11 font-stroke">Filters</div>
+            <div class="rounded-full w-16 h-16 object-cover ring-2 ring-offset-2 ring-gray-500">
+              <FilterIcon class="size-16 pb-2 pt-1" />
+            </div>
+          </div>
+        </label>
+        <div type="title" class="truncate flex flex-row items-center gap-2 is-drawer-close:hidden">
+          <SelectionFilters /><button @click="fsearch.resetFilters()" class="btn btn-sm btn-ghost">
+            <XMarkIcon class="size-5" />
+          </button>
+        </div>
+      </div>
+    </li>
+
     <li v-for="entry in fsearch.filteredEntries" :key="entry.id">
       <div
         class="flex flex-row gap-4 cursor-pointer p-4 hover:bg-base-300 rounded-lg max-w-80"
@@ -159,13 +183,13 @@
         </div>
         <div type="title" class="text-xs truncate overflow-ellipsis is-drawer-close:hidden">
           <div>
-            <div class="font-bold text-deathpink">
+            <div class="font-bold text-deathpink truncate">
               {{ getDisplayName(entry.value) }}
               <span v-if="entry.value.dimensions && entry.value.dimensions !== 'non-scale'">{{
                 entry.value?.dimensions
               }}</span>
             </div>
-            <div>
+            <div class="truncate">
               {{ getJpDisplayName(entry.value) }}
             </div>
             <div :style="'color: ' + getCategoryColor(entry.value?.category)">
@@ -209,10 +233,7 @@
           <div :style="'color: ' + getCategoryColor(figureTooltip?.category)">
             {{ figureTooltip?.category }}
           </div>
-
-          <div v-if="false" class="text-sm">
-            {{ new Date(figureTooltip.capturedAt).toLocaleString('de-DE') }}
-          </div>
+          <span class="ml-1 opacity-70 text-xs">#{{ fsearch.currentEntry.key }}</span>
         </div></PrettySm
       >
     </div></Teleport

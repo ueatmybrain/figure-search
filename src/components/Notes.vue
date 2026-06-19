@@ -3,6 +3,7 @@
   import { TrashIcon } from '@heroicons/vue/24/solid';
   import { figureSet } from '../db/idb.js';
   import { onMounted, ref, toRaw, watch } from 'vue';
+  import { getDisplayName } from '../utils.js';
 
   const fsearch = useFigureSearchStore();
   const notes = ref('');
@@ -44,12 +45,14 @@
   <div class="flex flex-col gap-4 p-4">
     <div class="font-bold flex-row">
       Notes<span v-if="fsearch.currentEntry">
-        for
+        for {{ getDisplayName(fsearch.currentEntry.value) }}
         <img
           class="size-6 inline mx-1 rounded-full ring-1"
           :src="fsearch.currentEntry.value.icon"
           alt=""
-      /></span>
+        />
+        <span class="ml-1 opacity-70 text-xs">#{{ fsearch.currentEntry.key }}</span></span
+      >
     </div>
     <textarea
       class="textarea w-100"
