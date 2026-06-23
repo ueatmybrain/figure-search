@@ -153,7 +153,9 @@
               />
             </a>
             <a
-              :href="'https://jp.mercari.com/search?keyword=' + fsearch.searchInput"
+              :href="
+                'https://jp.mercari.com/search?keyword=' + fsearch.searchInput + '&status=on_sale'
+              "
               target="_blank"
               rel="noopener"
               ><StoreButton
@@ -232,7 +234,9 @@
         <p class="py-4">This will delete all DB entries and can't be undone.</p>
         <div class="flex flex-row ml-50">
           <form method="dialog" class="flex">
-            <button @click="clearIndexedDb()" class="btn text-deathpink mr-10">Clear IndexedDB</button>
+            <button @click="clearIndexedDb()" class="btn text-deathpink mr-10">
+              Clear IndexedDB
+            </button>
             <button class="btn">Cancel</button>
           </form>
         </div>

@@ -84,9 +84,9 @@ export function getDisplayName(obj) {
   return (
     stringifyCharacters(obj?.character) ||
     stringifyCharacters(obj?.characters) ||
-    obj?.title ||
+    stringifyCharacters(obj?.title) ||
     obj?.classification ||
-    'unknown_character'
+    'no_eng_name'
   );
 }
 
@@ -94,9 +94,9 @@ export function getJpDisplayName(obj) {
   return (
     stringifyCharacters(obj?.jp.character) ||
     stringifyCharacters(obj?.jp.characters) ||
-    obj?.jp.title ||
+    stringifyCharacters(obj?.jp.title) ||
     obj?.jp.classification ||
-    'unknown_character'
+    'no_jp_name'
   );
 }
 
