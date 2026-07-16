@@ -1,5 +1,5 @@
-# Newer version including GUI for figure searching:
-https://github.com/ueatmybrain/figure-search-extension
+# This is the source for the Vue App which is built into this browser extension:
+https://github.com/ueatmybrain/figure-search-ext
 
 # Figure Search
 Tool to assist you in searching anime figures (and other stuff) on various japanese sites.
