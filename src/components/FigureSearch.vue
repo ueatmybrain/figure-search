@@ -26,6 +26,46 @@
   const customSearchLabel = ref('');
 
   const editCustomVisible = ref(false);
+  const buttonConfigs = [
+    //{ label_image: '', label_text: '', search_url: '', and_params: '' },
+    {
+      label_image:
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/1280px-Google_2015_logo.svg.png',
+      label_text: 'Google',
+      search_url: 'https://www.google.com/search?q=',
+      and_params: '',
+    },
+    {
+      label_image:
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWIAAAA8CAMAAABrcUB7AAAAXVBMVEUAAAD/////////////////////////////////////////////////////////////////////////////////swX/swX/swb/swX/swb/swb/swX/swf/////swbP+Iu0AAAAHXRSTlMA9BTQ4ArsVCGCdMGzp0iaLpA7Z17sO8pWp2uGIoe+1CIAAAZoSURBVHjapJjpkp0gEIXZRUTAJUllIe//mNnqVlL3ADad82tqZlrpz9OLip9ydSBndFyTEnM6Q96Mk7+i9zVZMSl/H1EbWaXR8bi96ErWjn6Htu/86fuzPnwTv/X158+fiWkuA0iuPksHL4iyd5T0aNSZzVu4yScJMUrGhYP401/CXcR2wTRXP4MYtSWSAbOkR6NsMM1wEywNMUZegJjuYUDMTNNVorbzEfA+KIREANw/iwuWhBilCyAmEgbElDSXGcSoPG6r6zjl+NAukhn7MdEQo25ATCLcQxym03SVLjMwstdP0XIRA+XnJ8xEXA9ATCAMiPlpujqj0B1TlOusoie1UVqV4iGumwXET4QRMT9NiCE4AnXRovdOqymGVkWFh7jugJhCGBHflaRo5xBjuaIOarRWzTZMhSUTD3ENgPiZMCJeyWn6PmJeta/0aG0xvEywKjzENQHiJ8KIODDT3OqsbvGmZSZ6xz5sKl1G8RA7BYjHhBFx4qZ51WmdDBNCzXIf8sZDXDMgHhJGxEWyi13XWWkw4ZQSbms8f8zl7AFxmzAgZqb5z+5mY/2vdjwdLhUM6SndPMQZEDcJA2J2mv7fSg9rRzma9tCBRsztU8pNhzvFQiwtIkbCPcSJkyZRPphRtDXNVrKmoqw/r/jUzI8mxLwUJVRZsmv78UnWX7pRuU/6guw/ij/ipJkEWQETLaNFZvf/JBvkaGT5py9GSVeUJ516+sl87RO+WmmWh09Ym6BL6a6NDRIqb8F5YGM0sXzfCW9JeMVEYZc3DA8P0jzf0jw4Nh6NRItp4Dty1wLxdV3AZ8r47RoHJv3LkmcTXsbvyD0WUcxoa4/1jWQwnBWqA18rUhFdtOKD2mESFpHUdE7ZTLOEy5OOa1oPyBOf2wWM2k/Itc/iHaPLIZmFS1jRuiz6OLxqaeV0NttCZ+ygZvGMitq8TrQHRSs8VxZhTLN3+wPTvOpeSqSND92oukjbi3D9ldDixpvkDjdiLBWBRxjvfndnlgMjav37ClIQtDQs4cj1G7Av0ucRdqTMcnGfMOgvYdwnND3NJNyfo5LKzkpI0oO3RtHoqA1MTLWxZvVinoeFAhP3BWnq11HLaScPvOGmIC093dwogpteQ5K1UbA8jJNA0a2wi7serz+Y8lh24KMwsQZe2FMU/ej4v5y9mEcYjz7QDf+71/XlMFemdgoH0MebSXmrdPyVmZm2hfF2xyI8mabHe8a6vmrYeDFUglI9Jl4IFN77JLsD+/bJ+EbBIoxphuHEqmBEEauGxZ+KOM+8kmMzTTDt6E0uMb60MQmLDNehz7sfzZzbbsIwDIadHifaAKXagibt/V9zG9Dlwq3t2oy4VwgKSj6c1HZ+O7tyyI75jQJPu38lYkW+WEHYijigoTdv4pVXl98oglUBcsXe2hXdZN4oTo8ZDyg05Jy28o87xdkdZ8OYsG2aTV6rM7w1aLWSwUN8rdPWrtwbbEZ8lewSdqdtvL8Yvublw0oaQL8w9MBDDwodBSLM27A99FgmObV1s/zQUZoGKh9A70Hc6wjbA2j4G3AFBwoTzoq15dNAOxBPSsL2NBAsI2jhGBBiPiUfiyYz5YgHLWF7MhPynBEl7mCpfEpeoS9WELal5DNizhAjmqODgyUp4mAkjE1hlB4siRFjDXsEB8ejYiu+mAjLj0fxNKWI5zWpioNDfjHik56w/ZCfR3xLqODvepCqiBF3asJGqQqJ+Hz4vaZYM7JBTnBV/aPgKsi9YjVhm+CKQnxhvEwXskE54lFP2CIbJBCjzAdyzRyKXwP629Zi3rRF+OMdw7eJX0cgEU/0A9qjhDsjPjMVSzLCdgm3HvEMRQsRTsAhhnq7diKJCdsLEdSIJwCX5TSBrN46I8QMYXs5jRpxBPBZFBZQNLZmGElI2F4UpkY8AZQsbQxnYBBvbJzdGuJPlrC9tJFHjM3fa4FuoNdVjxAzhI0FukrE3RHAbZl5oMuOR4SYIWwrM1cijhWA32YJGTHlGicZYWuzBDFiHNc6bvmREVOucRISNrX80CEebu97blyTEVOucZISNjSu4RHjh2dz74/lu/1SRky5xklM+Fntl7qN2KsdHlOrh6m/8/XeRCwjplzjJCf8pCZicTuB0P5c+Ub/rfAyYso1TjsIP6cVXhUDSjTjq1BDxw43dJQj7teTI2kXYXtDx283QU5E2BXwFwAAAABJRU5ErkJggg==',
+      label_text: 'Doorzo',
+      search_url: 'https://www.doorzo.com/en/search?keywords=',
+      and_params: '',
+      background_color: 'bg-black',
+    },
+    {
+      label_image:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLLHiZHevA-xm_vzUi30TkjV7W0Yjf_FXzUA&s',
+      label_text: 'Mercari',
+      search_url: 'https://jp.mercari.com/search?keyword=',
+      and_params: '&status=on_sale',
+    },
+    {
+      label_image:
+        'https://www.wakuwakumono.com/wp-content/uploads/2017/10/suruga-ya-logo-proxy.jpg',
+      label_text: 'Suruga-Ya',
+      search_url: 'https://www.suruga-ya.jp/search?category=&search_word=',
+      and_params: '',
+    },
+    {
+      label_image:
+        'https://image-mall.rakufun.com/crmebimage/public/content/2026/01/14/79c1a6a8f40b426e885a6a46209cbb6ahoitssyzy4.png',
+      label_text: 'JDirectItems',
+      search_url: 'https://buyee.jp/item/search/query/',
+      and_params: '',
+    },
+  ];
+
   async function initCustom() {
     const cs = await settingsGet('custom-search');
     if (cs) {
@@ -141,52 +181,15 @@
           </div>
           <div class="gap-2 flex justify-center">
             <a
-              :href="'https://www.google.com/search?q=' + fsearch.searchInput"
+              v-for="config in buttonConfigs"
+              :href="config.search_url + fsearch.searchInput + config.and_params"
               target="_blank"
               rel="noopener"
               ><StoreButton
                 :data="{
-                  image:
-                    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/1280px-Google_2015_logo.svg.png',
-                  label: 'Google',
-                }"
-              />
-            </a>
-            <a
-              :href="
-                'https://jp.mercari.com/search?keyword=' + fsearch.searchInput + '&status=on_sale'
-              "
-              target="_blank"
-              rel="noopener"
-              ><StoreButton
-                :data="{
-                  image:
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLLHiZHevA-xm_vzUi30TkjV7W0Yjf_FXzUA&s',
-                  label: 'Mercari',
-                }"
-              />
-            </a>
-            <a
-              :href="'https://www.suruga-ya.jp/search?category=&search_word=' + fsearch.searchInput"
-              target="_blank"
-              rel="noopener"
-              ><StoreButton
-                :data="{
-                  image:
-                    'https://www.wakuwakumono.com/wp-content/uploads/2017/10/suruga-ya-logo-proxy.jpg',
-                  label: 'Suruga-ya',
-                }"
-              />
-            </a>
-
-            <a
-              :href="'https://buyee.jp/item/search/query/' + fsearch.searchInput"
-              target="_blank"
-              rel="noopener"
-              ><StoreButton
-                :data="{
-                  image: 'https://rajikaru.co.uk/wp-content/uploads/2018/02/YAJ.jpg',
-                  label: 'YahooAJ',
+                  image: config.label_image,
+                  label: config.label_text,
+                  bg: config.background_color,
                 }"
               />
             </a>
